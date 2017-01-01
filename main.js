@@ -4,6 +4,25 @@ var canCreateNewFlowBox = true;
 var flowBoxButton = document.getElementById('flow-box-button');
 var flowContainer = document.getElementById('flow-container');
 
+/*
+	WARNING: SHITTY SOLUTION START HERE
+	Dragging and dropping exactly where the user drops is apparently a bit more
+	complex than I realized. That's ok I guess. I could bust out a library here
+	like JQuery or something, but I think I'm gonna soldier through here and reinvent
+	the wheel. I think it'll be a good challenge. However, this will require a lot
+	of grossness, I think. Ah well. Maybe I'll compare it with a better solution later.
+
+	In fact, maybe I should pull this out into a separate file. Will consider.
+*/
+
+//the height in px between the topmost edge of the screen and a new flow-box
+var heightFromEdge = 28;
+//the width in px between the leftmost edge of the screen and a new flow-box
+var widthFromEdge = 8;
+//using these, I can find out where exactly in the flow-box the user started dragging
+var dragStartX = 0;
+var dragStartY = 0;
+
 flowContainer.ondragover = function (event) {
 	//make the flowContainer allow the drop
 	event.preventDefault();
@@ -11,12 +30,20 @@ flowContainer.ondragover = function (event) {
 
 flowContainer.ondrop = function (event) {
 	event.preventDefault();
+
+	//find the box to drop inside the container
 	var data = event.dataTransfer.getData('text');
 	var box = document.getElementById(data);
+
+	////ehhhhhhhhhhhhh this is no good. But I'm gonna do it for now -- don't allow the box to be moved once it's in the chart :(
+	box.draggable = false;
 
 	flowContainer.appendChild(box);
 
 	//TODO: position the child node at where it was dropped in the container
+	console.log('drop',event);
+	box.style.left = (event.clientX - 102 - dragStartX + 5) + 'px';
+	box.style.top = (event.clientY - dragStartY + 5) + 'px';
 
 	//and now that the box has been added to the chart, we can add a new box
 	canCreateNewFlowBox = true;
@@ -44,6 +71,12 @@ flowBoxButton.onclick = function () {
 };
 
 function dragFlowBox(event) {
+	//would love to put these in the dataTransfer, but can i transfer multiple things with it? unclear.
+	dragStartX = event.pageX - widthFromEdge;
+	dragStartY = event.pageY - heightFromEdge;
+
+	console.log('user started dragging at (', dragStartX, ',', dragStartY, ')');
+
 	//not sure if this is the proper way to drag a node, but it's how w3 does it so whatevs
 	event.dataTransfer.setData('text', event.target.id);
 }
