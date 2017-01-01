@@ -1,3 +1,12 @@
+#flow-container {
+	border-left: 2px dotted black;
+	height: 735px;
+	left: 100px;
+	position: absolute;
+	top: 0;
+	width: 1434px;
+}
+
 .flow-box {
 	border: 1px solid black;
 	height: 50px;
