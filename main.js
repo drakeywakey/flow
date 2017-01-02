@@ -6,14 +6,7 @@ var flowBoxButton = document.getElementById('flow-box-button');
 var flowContainer = document.getElementById('flow-container');
 
 /*
-	WARNING: SHITTY SOLUTION START HERE
-	Dragging and dropping exactly where the user drops is apparently a bit more
-	complex than I realized. That's ok I guess. I could bust out a library here
-	like JQuery or something, but I think I'm gonna soldier through here and reinvent
-	the wheel. I think it'll be a good challenge. However, this will require a lot
-	of grossness, I think. Ah well. Maybe I'll compare it with a better solution later.
-
-	In fact, maybe I should pull this out into a separate file. Will consider.
+	Starting with no option to reposition the box once it's in the chart. Will change this when possible.
 */
 
 //the height in px between the topmost edge of the screen and a new flow-box
@@ -25,7 +18,7 @@ var dragStartX = 0;
 var dragStartY = 0;
 
 var padding = 5;
-var widthToContainer = 102;
+var widthToContainer = 202;
 
 flowContainer.ondragover = function (event) {
 	//make the flowContainer allow the drop
@@ -39,12 +32,14 @@ flowContainer.ondrop = function (event) {
 	var data = event.dataTransfer.getData('text');
 	var box = document.getElementById(data);
 
+	box.ondblclick = startBoxEdit;
 	//ok. I may have definitely done this the wrong way. If a box is already inside the container, I need to consider not only where
 	//inside the box the user started dragging, but also where the box already was inside the container. Maybe I should have that map keep
 	//track of the top left corner of each box??? idk. For now, back to no repositioning boxes inside the container :(
 
-	////ehhhhhhhhhhhhh this is no good. But I'm gonna do it for now -- don't allow the box to be moved once it's in the chart :(
+	//don't allow the box to be moved once it's in the chart
 	box.draggable = false;
+	box.ondragstart = null;
 
 	flowContainer.appendChild(box);
 
@@ -82,7 +77,7 @@ flowBoxButton.onclick = function () {
 
 		//set drag properties for the box
 		flowBox.draggable = true;
-		flowBox.ondragstart = dragFlowBox;
+		flowBox.ondragstart = dragFlowBoxIntoChart;
 
 		document.body.appendChild(flowBox);
 
@@ -91,19 +86,20 @@ flowBoxButton.onclick = function () {
 	}
 };
 
-function dragFlowBox(event) {
+function dragFlowBoxIntoChart(event) {
 	//would love to put these in the dataTransfer, but can i transfer multiple things with it? unclear.
-	//also, need to consider if the box was inside or outside the container when we started dragging
-	dragStartX = event.pageX;
-	dragStartY = event.pageY;
-
-	if (!boxesInContainer[event.target.id]) {
-		dragStartX -= widthFromEdge;
-		dragStartY -= heightFromEdge;
-	}
+	dragStartX = event.pageX -= widthFromEdge;
+	dragStartY = event.pageY -= heightFromEdge;
 
 	console.log('user started dragging at (', dragStartX, ',', dragStartY, ')');
 
 	//not sure if this is the proper way to drag a node, but it's how w3 does it so whatevs
 	event.dataTransfer.setData('text', event.target.id);
+}
+
+function startBoxEdit(event) {
+	var box = event.target;
+	var text = document.createElement('textarea');
+	text.maxLength = 120;
+	box.appendChild(text);
 }

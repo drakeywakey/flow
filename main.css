@@ -1,15 +1,22 @@
 #flow-container {
 	border-left: 2px dotted black;
 	height: 735px;
-	left: 100px;
+	left: 200px;
 	position: absolute;
 	top: 0;
-	width: 1434px;
+	width: 1334px;
 }
 
 .flow-box {
 	border: 1px solid black;
-	height: 50px;
+	height: 100px;
 	position: absolute;
-	width: 50px;
+	width: 150px;
+}
+
+textarea {
+	border: none;
+	height: 96px;
+	resize: none;
+	width: 146px;
 }
