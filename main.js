@@ -1,4 +1,5 @@
 var boxes = 0;
+var boxesInContainer = {};
 // This will only be true if there isn't already a box waiting to be put in the flow chart
 var canCreateNewFlowBox = true;
 var flowBoxButton = document.getElementById('flow-box-button');
@@ -23,6 +24,9 @@ var widthFromEdge = 8;
 var dragStartX = 0;
 var dragStartY = 0;
 
+var padding = 5;
+var widthToContainer = 102;
+
 flowContainer.ondragover = function (event) {
 	//make the flowContainer allow the drop
 	event.preventDefault();
@@ -35,6 +39,10 @@ flowContainer.ondrop = function (event) {
 	var data = event.dataTransfer.getData('text');
 	var box = document.getElementById(data);
 
+	//ok. I may have definitely done this the wrong way. If a box is already inside the container, I need to consider not only where
+	//inside the box the user started dragging, but also where the box already was inside the container. Maybe I should have that map keep
+	//track of the top left corner of each box??? idk. For now, back to no repositioning boxes inside the container :(
+
 	////ehhhhhhhhhhhhh this is no good. But I'm gonna do it for now -- don't allow the box to be moved once it's in the chart :(
 	box.draggable = false;
 
@@ -42,11 +50,24 @@ flowContainer.ondrop = function (event) {
 
 	//TODO: position the child node at where it was dropped in the container
 	console.log('drop',event);
-	box.style.left = (event.clientX - 102 - dragStartX + 5) + 'px';
-	box.style.top = (event.clientY - dragStartY + 5) + 'px';
+	//we need to consider where the box already was, along with where inside the box the user started dragging
+	var left = event.clientX - dragStartX + padding;
+	//and if the box was outside the container, we need to subtract off the width to the container, otherwise it gets positioned too far left
+	//(remember, this left position is supposed to be relative to the left edge of the container)
+	left -= boxesInContainer[data] ? 0 : widthToContainer;
+	//and finally, let's make sure the box gets dropped inside the container
+	box.style.left = (left >= 0 ? left : 0) + 'px';
+
+	//same with the top, although we don't need to worry about a heightToContainer, since the container isn't offset on the top
+	var top = event.clientY - dragStartY + padding;
+	box.style.top = (top >= 0 ? top : 0) + 'px';
+	//box.style.top = (event.clientY - dragStartY + 5) + 'px';
 
 	//and now that the box has been added to the chart, we can add a new box
 	canCreateNewFlowBox = true;
+
+	//and indicate that the box is now inside the container
+	boxesInContainer[data] = true;
 };
 
 flowBoxButton.onclick = function () {
@@ -72,8 +93,14 @@ flowBoxButton.onclick = function () {
 
 function dragFlowBox(event) {
 	//would love to put these in the dataTransfer, but can i transfer multiple things with it? unclear.
-	dragStartX = event.pageX - widthFromEdge;
-	dragStartY = event.pageY - heightFromEdge;
+	//also, need to consider if the box was inside or outside the container when we started dragging
+	dragStartX = event.pageX;
+	dragStartY = event.pageY;
+
+	if (!boxesInContainer[event.target.id]) {
+		dragStartX -= widthFromEdge;
+		dragStartY -= heightFromEdge;
+	}
 
 	console.log('user started dragging at (', dragStartX, ',', dragStartY, ')');
 
