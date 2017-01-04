@@ -106,7 +106,7 @@ arrowButton.onclick = function () {
 	arrow.classList.add('arrow');
 	arrow.id = 'arrow-' + arrows++;
 
-	arrow.classList.add('arrow-right');
+	arrow.setAttribute('data-direction', 'right');
 	arrow.ondblclick = changeArrowDirection;
 
 	arrow.src = './download.png';
@@ -114,7 +114,24 @@ arrowButton.onclick = function () {
 };
 
 function changeArrowDirection(event) {
-	console.log(event.target.classList);
+	var arrow = event.target;
+	var direction = arrow.dataset.direction;
+	switch (direction) {
+		case 'right':
+			arrow.setAttribute('data-direction', 'down');
+			break;
+		case 'down':
+			arrow.setAttribute('data-direction', 'left');
+			break;
+		case 'left':
+			arrow.setAttribute('data-direction', 'up');
+			break;
+		case 'up':
+			arrow.setAttribute('data-direction', 'right');
+			break;
+		default:
+			break;
+	}
 }
 
 function dragArrowIntoChart(event) {
