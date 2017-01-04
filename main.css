@@ -20,3 +20,9 @@ textarea {
 	resize: none;
 	width: 146px;
 }
+
+.arrow {
+	display: block;
+	position: absolute;
+	width: 50px;
+}
