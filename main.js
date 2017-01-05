@@ -33,24 +33,28 @@ flowContainer.ondrop = function (event) {
 
 	//find the box to drop inside the container
 	var data = event.dataTransfer.getData('text');
-	var box = document.getElementById(data);
+	var item = document.getElementById(data);
+	var isBox = item.classList.contains('flow-box');
 
 	var left = event.clientX - dragStartX + padding;
 	var top = event.clientY - dragStartY + padding;
 
 	//refactor soon -- most of this works for dropping in the arrows as well
-	var textarea = document.createElement('textarea');
-	textarea.maxLength = 120;
-	box.appendChild(textarea);
+
+	if (isBox) {
+		var textarea = document.createElement('textarea');
+		textarea.maxLength = 120;
+		item.appendChild(textarea);
+	}
 	//ok. I may have definitely done this the wrong way. If a box is already inside the container, I need to consider not only where
 	//inside the box the user started dragging, but also where the box already was inside the container. Maybe I should have that map keep
 	//track of the top left corner of each box??? idk. For now, back to no repositioning boxes inside the container :(
 
 	//don't allow the box to be moved once it's in the chart
-	box.draggable = false;
-	box.ondragstart = null;
+	item.draggable = false;
+	item.ondragstart = null;
 
-	flowContainer.appendChild(box);
+	flowContainer.appendChild(item);
 
 	//TODO: position the child node at where it was dropped in the container
 	console.log('drop',event);
@@ -60,11 +64,11 @@ flowContainer.ondrop = function (event) {
 	//(remember, this left position is supposed to be relative to the left edge of the container)
 	left -= boxesInContainer[data] ? 0 : widthToContainer;
 	//and finally, let's make sure the box gets dropped inside the container
-	box.style.left = (left >= 0 ? left : 0) + 'px';
+	item.style.left = (left >= 0 ? left : 0) + 'px';
 
 	//same with the top, although we don't need to worry about a heightToContainer, since the container isn't offset on the top
 
-	box.style.top = (top >= 0 ? top : 0) + 'px';
+	item.style.top = (top >= 0 ? top : 0) + 'px';
 	//box.style.top = (event.clientY - dragStartY + 5) + 'px';
 
 	//and now that the box has been added to the chart, we can add a new box
@@ -72,6 +76,13 @@ flowContainer.ondrop = function (event) {
 
 	//and indicate that the box is now inside the container
 	boxesInContainer[data] = true;
+
+	if (!isBox) {
+		var arrowText = document.createElement('input');
+		flowContainer.appendChild(arrowText);
+		arrowText.style.left = item.style.left;
+		arrowText.style.top = (parseInt(item.style.top) - 10) + 'px';
+	}
 };
 
 flowBoxButton.onclick = function () {

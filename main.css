@@ -21,10 +21,15 @@ textarea {
 	width: 146px;
 }
 
-.arrow {
+.arrow, input {
 	display: block;
 	position: absolute;
-	width: 50px;
+	width: 75px;
+}
+
+input {
+	border: 1px dashed #eee;
+	width: 100px;
 }
 
 .arrow[data-direction="right"] {
